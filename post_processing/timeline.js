@@ -275,7 +275,7 @@ function set_flight_json(json) {
 }
 
 // load flight.json
-fetch('flight.json').then(obj => obj.json()).then(json => set_flight_json(json));
+//fetch('flight.json').then(obj => obj.json()).then(json => set_flight_json(json));
 
 // call check_video_playback at 1Hz
 window.setInterval(function(){ handle_timer_update() }, 1000);

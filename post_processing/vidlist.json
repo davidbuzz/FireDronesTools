@@ -1,0 +1,18 @@
+[
+{
+ "video_id" : "Video_0",
+ "name" : "flight2_combined.mp4",
+ "start_time" : "1712636459.9213128"
+},
+{
+ "video_id" : "Video_1",
+ "name" : "flight2_combined_rgb_tmp.mp4",
+ "start_time" : "1712537100.07"
+},
+{
+ "video_id" : "Video_2",
+ "name" : "flight2_combined_thermal_tmp.mp4",
+ "start_time" : "1712536872.0"
+}
+
+]

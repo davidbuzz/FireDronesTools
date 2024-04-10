@@ -286,7 +286,7 @@ def add_videos(gmap):
     '''add in videos to the page'''
     print('Videos: ', args.video)
 
-    videos_json = '''video_list = [
+    videos_json = '''[
 '''
     for i in range(len(args.video)):
         video = args.video[i]
@@ -294,7 +294,7 @@ def add_videos(gmap):
         videos_json += f'''{{
  "video_id" : "Video_{i}",
  "name" : "{video}",
- "start_time" : new Date({start_time}*1000),
+ "start_time" : "{start_time}"
 }}'''
         if i < len(args.video)-1:
             videos_json += ','
@@ -302,6 +302,10 @@ def add_videos(gmap):
     videos_json += '''
 ]
 '''
+    vl = open('vidlist.json', 'w')
+    vl.write(videos_json)
+    vl.close()
+
     gmap.add_custom('js', videos_json)
 
     gmap.add_custom('html_top','''
@@ -335,6 +339,7 @@ def add_videos(gmap):
         var video = document.getElementById("ThermalvideoPlayer");
         video.currentTime = time;
     }
+    
 </script>
 ''')
 

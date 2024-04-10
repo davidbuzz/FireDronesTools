@@ -1,0 +1,159 @@
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>FireMap</title>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&key=AIzaSyAfzzZcmfSqvczcyLgRmupN7jJElJswQDk" ></script>
+<script type="text/javascript">
+    var global_map;
+    var video_list = [];
+
+    function initialize() {
+
+        //  delay till page is fully loaded, AND we have map object as the .getJSON uses jqery, and it has to load first
+        $(document).ready(function() {
+
+        var map = new google.maps.Map(document.getElementById("map_canvas"), {
+            mapTypeId: "satellite",
+            zoom: 12,
+            center: new google.maps.LatLng(-35.422741, 149.004435)
+        });
+
+        // get video list:
+        var vidurl = "/vidlist.json";
+        var vids = [];
+        $.getJSON(vidurl, function (data) {
+            $.each(data, function(index, record) {
+                var vid = {};
+                vid.video_id = record.video_id;
+                vid.name = record.name;
+                vid.start_time = new Date(record.start_time*1000);
+                vids.push(vid);
+            });
+            // console.log(vids);
+            loadVids(vids);
+        });
+
+        function loadVids(vids){
+            video_list = vids; // reverse its order so it renders in-page in the correct order , we use 'prepend' below
+            video_list.reverse();
+
+            video_list.forEach(function(vid){
+                // add video to videoContainer "row" inside a new TD
+                var td = document.createElement("td");
+                document.getElementById("vidrow").prepend(td); // add td to start of tr
+
+                var video = document.createElement("video");
+                video.src = vid.name;
+                video.id = vid.video_id;
+                video.controls = true;
+                video.width = 320;
+                video.height = 240;
+                td.appendChild(video); // add video to end of td/tr
+            });
+
+            // after videos are loaded, we can start the next phase...
+
+        }
+
+        // get flight path and draw on map:
+        var flighturl = "/flight.json";
+        var path = []; // we prep path and put it here.
+        $.getJSON(flighturl, function (data) {
+                var pathlen = data.length;
+
+                $.each(data, function(index, record) {
+                    // var GPitch = record.GPitch;
+                    // var GRoll = record.GRoll;
+                    // var GYaw = record.GYaw;
+                    // var lat = record.lat;
+                    // var lon = record.lon;
+                    //  Parse the array of LatLngs into Gmap points
+                    for(var i=0; i < pathlen; i++){
+                        path.push(new google.maps.LatLng(record.lat,record.lon));
+                    }
+                });
+
+                drawPath(path);//cant call till path is pulled from json
+
+                set_flight_json(data);// see timeline.js
+        });
+        // draws on map, after we have the data.
+        function drawPath(path){
+            var polyline = new google.maps.Polyline({
+                        path: path,
+                        strokeColor: '#ff0000',
+                        strokeOpacity: 1.0,
+                        strokeWeight: 3
+                        });
+            polyline.setMap(map);
+        }
+
+        new google.maps.visualization.HeatmapLayer({
+            radius: 10,
+            maxIntensity: 1,
+            opacity: 0.600000,
+            map: map,
+            data: [
+            ]
+        });
+        
+        map.addListener("click", (mapsMouseEvent) => {
+            handle_map_click(mapsMouseEvent);
+          });
+       
+
+        global_map = map;// remembmer it for later
+
+        });
+
+    }
+                </script>
+                
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
+<style>
+#videoContainer {
+  bottom: 1000px; /* Adjust based on your layout */
+  left: 0;
+  width: 100%;
+  background-color: #f3f3f3;
+  text-align: left;
+  vertical-align: text-top;
+  z-index: 1000; /* Ensure controls are on top of the page */
+}
+</style>
+
+                </head>
+                <body style="margin:0px; padding:0px;" onload="initialize()">
+                    
+  <div id="timeline"></div>
+  <script src="rotmat.js"></script>
+  <script src="projection.js"></script>
+  <script src="timeline.js"></script>
+
+<div id="videoContainer">
+<table>
+<tr id="vidrow"> <!-- videos will be added here with javascript  -->
+<td><div id="status_text">Initialising</div></td>
+</tr>
+</table>
+</div>
+<script>
+    function playVideo() {
+        //var video = document.getElementById("RGBvideoPlayer");
+        //video.play();
+    }
+
+    function seekVideo(time) {
+        //var video = document.getElementById("ThermalvideoPlayer");
+        //video.currentTime = time;
+    }
+</script>
+
+                    <div id="map_canvas" style="width: 100%; height: 800px;" />
+                    
+                </body>
+                </html>
+            
